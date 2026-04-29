@@ -411,7 +411,7 @@ class VideoValidator:
             reject_reason = "too_dark"
 
         summary = (
-            f"ROI {roi.name} image visibility={visible_ratio:.2f}, "
+            f"ROI {roi.name} image human_clear_ratio={visible_ratio:.2f}, "
             f"human_body_ratio={visibility_assessment.human_body_ratio:.2f}, "
             f"brightness={brightness:.2f}; {visibility_assessment.summary}"
         )
@@ -497,9 +497,9 @@ class VideoValidator:
             )
 
         summary = (
-            f"ROI {roi.name} video visibility={visible_ratio:.2f}, human_body_ratio={1.0 - visible_ratio:.2f}, "
+            f"ROI {roi.name} video human_clear_ratio={visible_ratio:.2f}, human_body_ratio={1.0 - visible_ratio:.2f}, "
             f"occlusion_seconds={occlusion_duration:.1f}, brightness={average_brightness:.2f}; "
-            f"Gemini visibility: {visibility_summaries[0] if visibility_summaries else 'n/a'}"
+            f"Gemini human-body occlusion: {visibility_summaries[0] if visibility_summaries else 'n/a'}"
         )
 
         return ValidationResult(
@@ -756,6 +756,7 @@ class AnalysisService:
             "summary": f"{validation.summary} | {quality.summary}",
             "source_path": str(media_path),
         }
+        stored["human_clear_ratio"] = stored["visible_ratio"]
         if crop_preview_path is not None:
             stored["analysis_crop_path"] = str(crop_preview_path)
             stored["analysis_crop_url"] = "/data/" + crop_preview_path.relative_to(ANALYSIS_CROP_DIR.parent).as_posix()

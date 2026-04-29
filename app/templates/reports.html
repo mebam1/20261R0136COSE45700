@@ -105,7 +105,7 @@
           <th>점포</th>
           <th>ROI</th>
           <th>판정</th>
-          <th>visible</th>
+          <th>human clear</th>
           <th>차폐</th>
         </tr>
       </thead>
@@ -116,7 +116,7 @@
           <td>{{ row.store_name }}</td>
           <td>{{ row.roi_name }}</td>
           <td><span class="status {{ row.decision|lower }}">{{ row.decision }}</span></td>
-          <td>{{ "%.2f"|format(row.visible_ratio) }}</td>
+          <td>{{ "%.2f"|format(row.human_clear_ratio) }}</td>
           <td>{{ "%.1f"|format(row.occlusion_duration) }}s</td>
         </tr>
         {% else %}

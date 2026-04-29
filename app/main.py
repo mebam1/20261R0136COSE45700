@@ -48,11 +48,18 @@ def config_payload(config_id: str | None) -> dict[str, Any] | None:
         return None
 
 
+def with_human_clear_ratio(record: dict[str, Any]) -> dict[str, Any]:
+    payload = dict(record)
+    if "visible_ratio" in payload and "human_clear_ratio" not in payload:
+        payload["human_clear_ratio"] = payload["visible_ratio"]
+    return payload
+
+
 @app.get("/")
 def dashboard(request: Request) -> Any:
     configs = config_store.list_configs()
     stores = config_store.list_store_names()
-    latest_pop = fetch_latest_by_roi("POP")
+    latest_pop = [with_human_clear_ratio(row) for row in fetch_latest_by_roi("POP")]
     return templates.TemplateResponse(
         request,
         "dashboard.html",
@@ -291,7 +298,7 @@ async def validate_image_api(
     return JSONResponse(
         {
             "is_valid": validation.is_valid,
-            "visible_ratio": round(validation.visible_ratio, 3),
+            "human_clear_ratio": round(validation.visible_ratio, 3),
             "occlusion_level": validation.occlusion_level,
             "summary": validation.summary,
             "reject_reason": validation.reject_reason,
@@ -330,7 +337,7 @@ async def validate_video_api(
     return JSONResponse(
         {
             "is_valid": validation.is_valid,
-            "visible_ratio": round(validation.visible_ratio, 3),
+            "human_clear_ratio": round(validation.visible_ratio, 3),
             "occlusion_duration": round(validation.occlusion_duration, 2),
             "brightness_mismatch_duration": round(validation.brightness_mismatch_duration, 2),
             "occlusion_level": validation.occlusion_level,
@@ -356,8 +363,8 @@ def reports_page(
         "decision": decision,
         "item_type": item_type,
     }
-    records = fetch_results(filters)
-    latest_pop = fetch_latest_by_roi(roi_name if roi_name else "POP")
+    records = [with_human_clear_ratio(row) for row in fetch_results(filters)]
+    latest_pop = [with_human_clear_ratio(row) for row in fetch_latest_by_roi(roi_name if roi_name else "POP")]
     return templates.TemplateResponse(
         request,
         "reports.html",
