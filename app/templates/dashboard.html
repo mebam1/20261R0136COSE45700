@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="section-head">
+    <h1>로컬 MVP1 대시보드</h1>
+    <p>ROI 설정, POP 분석, SQLite 리포트를 한 곳에서 확인합니다.</p>
+  </div>
+
+  <div class="metrics-grid">
+    <article class="metric">
+      <span class="metric-label">Stores</span>
+      <strong>{{ stores|length }}</strong>
+    </article>
+    <article class="metric">
+      <span class="metric-label">Configured CCTV</span>
+      <strong>{{ configs|length }}</strong>
+    </article>
+    <article class="metric">
+      <span class="metric-label">Absent POP Targets</span>
+      <strong>{{ absent_pop_count }}</strong>
+    </article>
+  </div>
+</section>
+
+<section class="grid-two">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>등록된 CCTV</h2>
+      <a href="/setup" class="button-link">설정 열기</a>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>점포</th>
+          <th>CCTV</th>
+          <th>ROI 수</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for config in configs %}
+        <tr>
+          <td>{{ config.store_name }}</td>
+          <td>{{ config.cctv_nickname }}</td>
+          <td>{{ config.areas|length }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3" class="muted-cell">아직 저장된 CCTV 설정이 없습니다.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>최신 POP 판정</h2>
+      <a href="/reports?roi_name=POP" class="button-link">리포트 보기</a>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>점포</th>
+          <th>ROI</th>
+          <th>판정</th>
+          <th>신뢰도</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in latest_pop %}
+        <tr>
+          <td>{{ row.store_name }}</td>
+          <td>{{ row.roi_name }}</td>
+          <td><span class="status {{ row.decision|lower }}">{{ row.decision }}</span></td>
+          <td>{{ "%.2f"|format(row.confidence) }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="muted-cell">분석 결과가 아직 없습니다.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</section>
+{% endblock %}

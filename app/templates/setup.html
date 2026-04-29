@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="section-head">
+    <h1>ROI Setup</h1>
+    <p>Select an existing store, then save CCTV settings and four-point ROI polygons under that store.</p>
+  </div>
+</section>
+
+<section class="grid-two wide-left">
+  <aside class="panel">
+    <div class="panel-head">
+      <h2>Stores</h2>
+    </div>
+
+    <ul class="config-list store-list">
+      {% for store in stores %}
+      <li>
+        <a
+          href="/setup?store_name={{ store.name }}"
+          class="config-item store-item {% if selected_store_name == store.name %}active{% endif %}">
+          <strong>{{ store.name }}</strong>
+          <span>{{ store.cctv_count }} CCTV</span>
+        </a>
+      </li>
+      {% else %}
+      <li class="muted-cell">No stores are registered. Add stores first from the Stores tab.</li>
+      {% endfor %}
+    </ul>
+  </aside>
+
+  <section class="panel">
+    {% if selected_store_name %}
+    <div class="panel-head">
+      <h2>{{ selected_store_name }}</h2>
+    </div>
+
+    <div class="store-cctv-strip">
+      {% for config in selected_store_configs %}
+      <a
+        href="/setup?store_name={{ selected_store_name }}&config_id={{ config.config_id }}"
+        class="cctv-chip {% if selected_config and selected_config.config_id == config.config_id %}active{% endif %}">
+        {{ config.cctv_nickname }}
+      </a>
+      {% else %}
+      <span class="muted-cell">No CCTV has been configured for this store yet.</span>
+      {% endfor %}
+    </div>
+
+    <form id="setup-form" method="post" action="/setup/save" enctype="multipart/form-data" class="stack-gap">
+      <input type="hidden" name="store_name" value="{{ selected_store_name }}">
+
+      <label>
+        <span>CCTV nickname</span>
+        <input type="text" name="cctv_nickname" value="{{ selected_config.cctv_nickname if selected_config else '' }}" required>
+      </label>
+
+      <label>
+        <span>Reference image</span>
+        <input type="file" id="reference-image" name="reference_image" accept="image/*" {% if not selected_config %}required{% endif %}>
+      </label>
+
+      <input type="hidden" name="rois_json" id="rois-json">
+      <input type="hidden" name="existing_reference_path" value="{{ selected_config.reference_image_path if selected_config else '' }}">
+
+      <div class="editor-toolbar">
+        <label class="grow">
+          <span>ROI name</span>
+          <input type="text" id="roi-name" placeholder="Example: POP">
+        </label>
+        <button type="button" id="delete-roi" class="secondary-button">Delete Selected</button>
+        <button type="button" id="clear-rois" class="secondary-button">Clear All</button>
+      </div>
+
+      <div class="editor-layout">
+        <div class="canvas-wrap">
+          <canvas
+            id="roi-canvas"
+            data-reference-url="{% if selected_config %}/data/{{ selected_config.reference_image_path }}{% endif %}">
+          </canvas>
+        </div>
+
+        <div class="roi-sidebar">
+          <h3>ROI List</h3>
+          <ul id="roi-list" class="roi-list"></ul>
+          <p class="helper">
+            Drag on the image to create a four-point ROI, then drag each handle to shape it into a trapezoid.
+          </p>
+        </div>
+      </div>
+
+      <button type="submit" class="primary-button">Save CCTV Setup</button>
+    </form>
+    {% else %}
+    <div class="empty-state">
+      <h2>Select a store</h2>
+      <p>Only existing stores can be used here. Add new ones from the Stores tab first.</p>
+    </div>
+    {% endif %}
+  </section>
+</section>
+
+<script>
+  window.initialConfig = {{ selected_config|tojson if selected_config else 'null' }};
+</script>
+<script src="/static/roi-editor.js"></script>
+{% endblock %}

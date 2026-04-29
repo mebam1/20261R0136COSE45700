@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="section-head">
+    <h1>리포트 뷰어</h1>
+    <p>SQLite 저장 결과를 매장, ROI, 항목, 시간 기준으로 확인합니다.</p>
+  </div>
+</section>
+
+<section class="panel">
+  <form method="get" action="/reports" class="filter-grid">
+    <label>
+      <span>점포</span>
+      <select name="store_name">
+        <option value="">전체</option>
+        {% for value in options.store_name %}
+        <option value="{{ value }}" {% if filters.store_name == value %}selected{% endif %}>{{ value }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span>CCTV</span>
+      <select name="cctv_id">
+        <option value="">전체</option>
+        {% for value in options.cctv_id %}
+        <option value="{{ value }}" {% if filters.cctv_id == value %}selected{% endif %}>{{ value }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span>ROI</span>
+      <select name="roi_name">
+        <option value="">전체</option>
+        {% for value in options.roi_name %}
+        <option value="{{ value }}" {% if filters.roi_name == value %}selected{% endif %}>{{ value }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span>판정</span>
+      <select name="decision">
+        <option value="">전체</option>
+        {% for value in options.decision %}
+        <option value="{{ value }}" {% if filters.decision == value %}selected{% endif %}>{{ value }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span>항목</span>
+      <select name="item_type">
+        <option value="">전체</option>
+        {% for value in options.item_type %}
+        <option value="{{ value }}" {% if filters.item_type == value %}selected{% endif %}>{{ value }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <div class="filter-actions">
+      <button type="submit" class="primary-button">필터 적용</button>
+      <a href="/reports" class="secondary-button inline-button">초기화</a>
+    </div>
+  </form>
+</section>
+
+<section class="grid-two">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>최신 매장별 POP 결과</h2>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>점포</th>
+          <th>CCTV</th>
+          <th>판정</th>
+          <th>신뢰도</th>
+          <th>시각</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in latest_pop %}
+        <tr>
+          <td>{{ row.store_name }}</td>
+          <td>{{ row.cctv_nickname }}</td>
+          <td><span class="status {{ row.decision|lower }}">{{ row.decision }}</span></td>
+          <td>{{ "%.2f"|format(row.confidence) }}</td>
+          <td>{{ row.analyzed_at }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="muted-cell">최신 리포트가 없습니다.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>시간대별 상세 기록</h2>
+    </div>
+    <table class="table compact">
+      <thead>
+        <tr>
+          <th>시각</th>
+          <th>점포</th>
+          <th>ROI</th>
+          <th>판정</th>
+          <th>visible</th>
+          <th>차폐</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in records %}
+        <tr>
+          <td>{{ row.analyzed_at }}</td>
+          <td>{{ row.store_name }}</td>
+          <td>{{ row.roi_name }}</td>
+          <td><span class="status {{ row.decision|lower }}">{{ row.decision }}</span></td>
+          <td>{{ "%.2f"|format(row.visible_ratio) }}</td>
+          <td>{{ "%.1f"|format(row.occlusion_duration) }}s</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="muted-cell">조건에 맞는 결과가 없습니다.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>상세 요약</h2>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>시각</th>
+        <th>CCTV</th>
+        <th>ROI</th>
+        <th>요약</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in records %}
+      <tr>
+        <td>{{ row.analyzed_at }}</td>
+        <td>{{ row.cctv_id }}</td>
+        <td>{{ row.roi_name }}</td>
+        <td class="summary-cell">{{ row.summary }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" class="muted-cell">표시할 요약이 없습니다.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

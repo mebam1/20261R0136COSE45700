@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title or "MVP1 Franchise Quality Monitor" }}</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/" class="brand">MVP1 Monitor</a>
+      <nav class="nav">
+        <a href="/stores">Stores</a>
+        <a href="/setup">ROI Setup</a>
+        <a href="/analyze">Analysis</a>
+        <a href="/reports">Reports</a>
+      </nav>
+    </div>
+  </header>
+  <main class="page">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

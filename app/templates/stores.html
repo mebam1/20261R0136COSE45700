@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="section-head">
+    <h1>Stores</h1>
+    <p>Register store names here. ROI Setup only works with stores that already exist.</p>
+  </div>
+</section>
+
+<section class="grid-two wide-left">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Add Store</h2>
+    </div>
+    <form method="post" action="/stores" class="stack-gap">
+      <label>
+        <span>Store name</span>
+        <input type="text" name="store_name" placeholder="Enter a store name" required>
+      </label>
+      <button type="submit" class="primary-button">Add Store</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Registered Stores</h2>
+      <a href="/setup" class="button-link">Open ROI Setup</a>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Store</th>
+          <th>CCTV Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for store in stores %}
+        <tr>
+          <td>{{ store.name }}</td>
+          <td>{{ store.cctv_count }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="2" class="muted-cell">No stores are registered yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</section>
+{% endblock %}

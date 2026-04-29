@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="section-head">
+    <h1>POP 분석 실행</h1>
+    <p>고정 CCTV 영상 또는 이미지와 POP ROI를 선택해 검수와 판정을 함께 수행합니다.</p>
+  </div>
+</section>
+
+<section class="grid-two">
+  <section class="panel">
+    <form method="post" action="/analyze" enctype="multipart/form-data" class="stack-gap" id="analyze-form">
+      <label>
+        <span>CCTV 설정</span>
+        <select name="config_id" id="config-select" required>
+          <option value="">선택</option>
+          {% for config in configs %}
+          <option
+            value="{{ config.config_id }}"
+            {% if selected_config and selected_config.config_id == config.config_id %}selected{% endif %}>
+            {{ config.store_name }} / {{ config.cctv_nickname }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        <span>ROI</span>
+        <select name="roi_name" id="roi-select" required></select>
+      </label>
+
+      <label>
+        <span>분석 대상 영상 또는 이미지</span>
+        <input type="file" name="media_file" accept="image/*,video/*" required>
+      </label>
+
+      <div class="form-grid">
+        <label>
+          <span>기존 포스터 템플릿</span>
+          <select name="poster_template_name">
+            <option value="">직접 업로드</option>
+            {% for template in poster_templates %}
+            <option value="{{ template }}">{{ template }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>포스터 템플릿 업로드</span>
+          <input type="file" name="poster_template_upload" accept="image/*">
+        </label>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          <span>조도 센서 값 (0~1)</span>
+          <input type="number" name="sensor_brightness" min="0" max="1" step="0.01" placeholder="예: 0.65">
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" name="enable_sensor_match" value="true">
+          <span>조도 센서 밝기 매칭 사용</span>
+        </label>
+      </div>
+
+      <button type="submit" class="primary-button">분석 실행</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>분석 결과</h2>
+    </div>
+    {% if analysis_result %}
+    <div class="result-card">
+      <div class="result-topline">
+        <span class="status {{ analysis_result.decision|lower }}">{{ analysis_result.decision }}</span>
+        <strong>{{ analysis_result.store_name }} / {{ analysis_result.roi_name }}</strong>
+      </div>
+      <dl class="result-grid">
+        <div>
+          <dt>신뢰도</dt>
+          <dd>{{ "%.2f"|format(analysis_result.confidence) }}</dd>
+        </div>
+        <div>
+          <dt>visible ratio</dt>
+          <dd>{{ "%.2f"|format(analysis_result.visible_ratio) }}</dd>
+        </div>
+        <div>
+          <dt>차폐 지속 시간</dt>
+          <dd>{{ "%.1f"|format(analysis_result.occlusion_duration) }}s</dd>
+        </div>
+        <div>
+          <dt>밝기 mismatch</dt>
+          <dd>{{ "%.1f"|format(analysis_result.brightness_mismatch_duration) }}s</dd>
+        </div>
+      </dl>
+      <p class="result-summary">{{ analysis_result.summary }}</p>
+      {% if analysis_result.analysis_crop_url %}
+      <div class="stack-gap" style="margin-top: 16px;">
+        <strong>ROI crop</strong>
+        <img
+          src="{{ analysis_result.analysis_crop_url }}"
+          alt="{{ analysis_result.roi_name }} crop"
+          style="display:block; width:100%; max-width:420px; border:1px solid #d1d5db; border-radius:8px;">
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <p class="helper">분석을 실행하면 여기에서 POP 판정 결과를 확인할 수 있습니다.</p>
+    {% endif %}
+  </section>
+</section>
+
+<script>
+  const configs = {{ configs_payload|tojson }};
+  const selectedConfigId = "{{ selected_config.config_id if selected_config else '' }}";
+  const configSelect = document.getElementById("config-select");
+  const roiSelect = document.getElementById("roi-select");
+
+  function renderRois(configId) {
+    roiSelect.innerHTML = "";
+    const selected = configs.find((item) => item.config_id === configId);
+    if (!selected) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "먼저 CCTV 설정 선택";
+      roiSelect.appendChild(option);
+      return;
+    }
+    selected.areas.forEach((area) => {
+      const option = document.createElement("option");
+      option.value = area.name;
+      const pointSummary = (area.points || []).map((point) => `(${point.x}, ${point.y})`).join(" ");
+      option.textContent = `${area.name} ${pointSummary}`;
+      roiSelect.appendChild(option);
+    });
+  }
+
+  configSelect.addEventListener("change", (event) => renderRois(event.target.value));
+  renderRois(selectedConfigId || configSelect.value);
+</script>
+{% endblock %}

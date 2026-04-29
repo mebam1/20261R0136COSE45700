@@ -1,0 +1,37 @@
+{
+  "store_name": "StoreBeta",
+  "cctv_nickname": "RealCam",
+  "cctv_id": "StoreBeta::RealCam",
+  "config_id": "StoreBeta_RealCam",
+  "reference_image_path": "reference_images/StoreBeta_RealCam.jpg",
+  "areas": [
+    {
+      "name": "Parrot",
+      "points": [
+        {
+          "x": 0,
+          "y": 505
+        },
+        {
+          "x": 623,
+          "y": 658
+        },
+        {
+          "x": 762,
+          "y": 185
+        },
+        {
+          "x": 78,
+          "y": 129
+        }
+      ],
+      "bounds": {
+        "x": 0,
+        "y": 129,
+        "width": 762,
+        "height": 529
+      }
+    }
+  ],
+  "created_at": "2026-04-29T19:53:30"
+}

@@ -1,0 +1,11 @@
+.env
+.idea/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+data/uploads/
+data/analysis_crops/
+data/mvp1.sqlite3
+data/poster_templates/*_poster_*

@@ -1,0 +1,37 @@
+{
+  "store_name": "StoreAlpha",
+  "cctv_nickname": "FrontCam",
+  "cctv_id": "StoreAlpha::FrontCam",
+  "config_id": "StoreAlpha_FrontCam",
+  "reference_image_path": "reference_images/StoreAlpha_FrontCam.png",
+  "areas": [
+    {
+      "name": "POP",
+      "points": [
+        {
+          "x": 442,
+          "y": 36
+        },
+        {
+          "x": 446,
+          "y": 132
+        },
+        {
+          "x": 586,
+          "y": 138
+        },
+        {
+          "x": 578,
+          "y": 28
+        }
+      ],
+      "bounds": {
+        "x": 442,
+        "y": 28,
+        "width": 144,
+        "height": 110
+      }
+    }
+  ],
+  "created_at": "2026-04-29T21:07:47"
+}
